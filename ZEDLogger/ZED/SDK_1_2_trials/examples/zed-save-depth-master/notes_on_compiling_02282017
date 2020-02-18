@@ -1,0 +1,4 @@
+notes on compiling zed-save-depth
+- got it sort of working by using:
+"cmake -D CUDA_USE_STATIC_CUDA_RUNTIME=OFF .."
+but the fact that i had to use this suggests cmake is not recognizing that i'm on a jetson b/c the CMakeLists file is supposed to add the command "CUDA_USE_STATIC_CUDA_RUNTIME=OFF" if on a Jetson
