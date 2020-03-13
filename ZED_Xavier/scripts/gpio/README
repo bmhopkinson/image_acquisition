@@ -1,0 +1,8 @@
+Adapted from jkjung-avt on GitHub:
+https://github.com/jkjung-avt/dqn-tx1-for-nintendo/tree/master/gpio/non_root
+
+setup_gpio.sh adds a gpio group to root, sets up a udev rule to allow gpio to be accessed by users in the group, and adds the default nvidia user to the group. This allows programs started by nvidia to access gpio without requiring root permissions.
+
+gpio.sh provides a fast terminal interface to gpio for testing
+
+99-com.rules is a udev rule which calls fix_udev_gpio.sh to change permissions on the gpio sysfs files
