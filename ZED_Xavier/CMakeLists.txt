@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(route_controller)
+project(image_acq_zedXavier)
 
 IF(NOT CMAKE_BUILD_TYPE)
   SET(CMAKE_BUILD_TYPE RelWithDebInfo)
@@ -35,18 +35,25 @@ endif()
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ../lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../bin)
 
+#LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
+
 find_package(Threads REQUIRED)
 find_package(ZED 2 REQUIRED)
 find_package(CUDA ${ZED_CUDA_VERSION} EXACT REQUIRED)
 
 add_library(system SHARED
 src/system/GPIO.cpp
+src/system/GPSPoller.cpp
 src/system/LogUtils.cpp
 )
 target_include_directories(system PUBLIC
-${PROJECT_SOURCE_DIR}/include
+  ${PROJECT_SOURCE_DIR}/include
+  /usr/include
 )
-target_link_libraries(system ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(system 
+  ${CMAKE_THREAD_LIBS_INIT} 
+  /usr/lib/aarch64-linux-gnu/libgps.so 
+)
 
 add_executable(logger src/logger.cpp)
 target_include_directories(logger PUBLIC
