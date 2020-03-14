@@ -18,6 +18,8 @@ class GPSPoller
      double lat;
      double lon;
      int mode;
+     int sats_used;
+     std::string iso_time;
      //type? time;
 
   public:
@@ -26,9 +28,10 @@ class GPSPoller
       void stopUpdate()  {update = false;} 
       struct gps_data_t* getCurrentData() {return currentdata;}
 
-    double get_lat() const;
-    double get_lon() const;
-    int get_mode() const;
+    double get_lat() const { return lat; };
+    double get_lon() const { return lon; };
+    int get_mode() const { return mode; };
+    std::string get_time() const { return iso_time; };
     //type? get_time() const;
 
 };

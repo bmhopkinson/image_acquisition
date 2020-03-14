@@ -1,0 +1,36 @@
+%YAML:1.0
+
+# Platform dimensions, in meters
+Platform.length: 0.46
+Platform.width: 0.34
+Platform.height: 0.42
+
+
+# Position and orientation of camera relative to platform center, in meters and degrees
+#	- ORB-SLAM camera axes are Right/Back/Down relative to left camera
+# 	- Used to calculate camera-relative coordinates from platform-relative coordinates
+# 	  and platform-origin-relative world coordinates from ORB-SLAM world coordinates
+Tracking.cameraTransform:
+  x: 0.0
+  y: -0.0475  # Shift origin to camera center
+  z: 0.0
+  roll: 0.0
+  pitch: 0.0
+  yaw: 90.0
+
+# Path to slam config file, relative to this file
+Tracking.slamConfig: ./zedm_slam_config.yaml
+
+# Threshold for deviation from measured tilt, in degrees
+Tracking.tiltThreshold: 5
+
+# Threshold for deviation from measured depth, in meters
+Tracking.depthThreshold: 0.2
+
+
+# Vertical thrust trim for no lateral thrust, compensates for buoyancy
+Movement.holdVertTrim: -90
+
+# Vertical thrust trim for max lateral thrust, compensates for diving
+Movement.fullVertTrim: 100  # Tuned for forward-back, 90 better for sideways
+

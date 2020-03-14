@@ -53,6 +53,7 @@ target_include_directories(system PUBLIC
 target_link_libraries(system 
   ${CMAKE_THREAD_LIBS_INIT} 
   /usr/lib/aarch64-linux-gnu/libgps.so 
+  yaml-cpp
 )
 
 add_executable(logger src/logger.cpp)

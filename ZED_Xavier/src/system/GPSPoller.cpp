@@ -41,28 +41,23 @@ void GPSPoller::poll_device(void)
 
 void GPSPoller::update_data(struct gps_data_t* gpsdata){
     if(gpsdata->set & TIME_SET){
-        char  isoTime[128];
-        (void)unix_to_iso8601(gpsdata->fix.time, isoTime, sizeof(isoTime));
-        cout << isoTime << "\t";
+        char  _isoTime[128];
+        (void)unix_to_iso8601(gpsdata->fix.time, _isoTime, sizeof(_isoTime));
+        iso_time = _isoTime;
     }
   
     if(gpsdata->set & LATLON_SET){
         cout.setf(ios_base::fixed, ios_base::floatfield);
         cout.precision(6);
-        cout << "lat: " << gpsdata->fix.latitude << "\t" << "long: " << gpsdata->fix.longitude <<"\t" ;\
         lat =  gpsdata->fix.latitude;
         lon = gpsdata->fix.longitude;
     }
   
     if(gpsdata->set & MODE_SET){
-        cout << "mode: " << gpsdata->fix.mode << "\t" ;
+       // cout << "mode: " << gpsdata->fix.mode << "\t" ;
         mode =  gpsdata->fix.mode;
     } 
-    cout << "sats used: " << gpsdata->satellites_used << "\t";
-    cout << "sats visible: " << gpsdata->satellites_visible << "\t";
-    cout << endl;
+    sats_used = gpsdata->satellites_used;
 }
-
-
 
 //  END GPSPoller Class

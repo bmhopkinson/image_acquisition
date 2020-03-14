@@ -1,0 +1,12 @@
+%YAML:1.0
+
+# gpio info
+gpio.button_startstop: 
+    pin_id: 249
+    longthresh: 2000
+
+#zed info
+zed:
+    fps: 30
+    resolution: RESOLUTION_HD1080 
+
