@@ -45,9 +45,12 @@ add_library(system SHARED
 src/system/GPIO.cpp
 src/system/GPSPoller.cpp
 src/system/LogUtils.cpp
+src/system/Helpers.cpp
 )
 target_include_directories(system PUBLIC
   ${PROJECT_SOURCE_DIR}/include
+  ${ZED_INCLUDE_DIRS}
+  ${CUDA_INCLUDE_DIRS}
   /usr/include
 )
 target_link_libraries(system 

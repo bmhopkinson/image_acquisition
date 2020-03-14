@@ -1,6 +1,7 @@
 #include "system/GPIO.h"
 #include "system/GPSPoller.h"
 #include "system/LogUtils.h"
+#include "system/Helpers.h"
 #include <sl/Camera.hpp>
 #include <iostream>
 #include <fstream>
@@ -8,7 +9,6 @@
 #include<thread>
 #include<stdlib.h>
 #include <time.h>
-#include <unordered_map>
 #include <yaml-cpp/yaml.h>
 
 //to do - create performance logger that records cpu/gpu usage, cpu temp, fan speed, etc over time
@@ -49,20 +49,7 @@ int main(int argc, char **argv) {
     // Set initial parameters
 	YAML::Node zed_config = config_file["zed"];
     InitParameters init_params;
-    //init_params.camera_resolution = RESOLUTION_HD720; // Use HD720 video mode (default fps: 60)
-	RESOLUTION zed_res;
-	std::unordered_map<std::string, RESOLUTION> const str_to_resolution ={
- 		{"RESOLUTION_HD2K"   , RESOLUTION_HD2K},
-		{"RESOLUTION_HD1080", RESOLUTION_HD1080},
-		{"RESOLUTION_HD720"  , RESOLUTION_HD720},
-		{"RESOLUTION_VGA"     , RESOLUTION_VGA},
-		{"RESOLUTION_LAST"    , RESOLUTION_LAST}
-	};
-	if (auto it = str_to_resolution.find(zed_config["resolution"].as<string>()); it != str_to_resolution.end()) {
-  		zed_res =  it->second;
-	} else { cout << "unrecognized resolution" << endl; }
-
-	init_params.camera_resolution = zed_res;
+	init_params.camera_resolution = str_to_resolution(zed_config["resolution"].as<string>());
 	init_params.camera_fps = zed_config["fps"].as<int>();
     init_params.coordinate_units = UNIT_METER; // Set units in meters
     // Open the camera
@@ -108,7 +95,7 @@ int main(int argc, char **argv) {
                 char datafname[50];
     			strftime(datafname,50,"./log/%Y/%m-%d/%F_%H-%M-%S_data.txt",start_time);
                 data_file.open(datafname, std::ios::out);
-                data_file << "i\t" << "sys_time (s)\t" << "frame_timestamp (ns)\t" << "gps_time\t" << "lat\t" << "lon\t"<< "qx\t"<< "qy\t"<< "qz\t" << "qw\n";
+                data_file << "i\t" <<"sys_time_local\t"<< "sys_time_rel (s)\t" << "frame_timestamp (ns)\t" << "gps_time\t" << "lat\t" << "lon\t"<< "qx\t"<< "qy\t"<< "qz\t" << "qw\n";
 
                 b_record = true;
               //  gpio_led.set_value(1);
@@ -124,22 +111,31 @@ int main(int argc, char **argv) {
         while (b_record) {
             // Grab a new frame
             if (zed.grab() == SUCCESS) {
-                // Record the grabbed frame in the video file
-                //double timestamp =  (static_cast<double>(zed.getTimestamp(TIME_REFERENCE::TIME_REFERENCE_CURRENT)) / 1E9) - init_time;
+                
+                // calculate a bunch of times and timestamps for debugging and synchronizing
+				// high resolution relative time
                 std::chrono::high_resolution_clock::time_point  sys_tcur = std::chrono::high_resolution_clock::now();//system time
                 chrono::duration<double> trel_sys = chrono::duration_cast<chrono::duration<double>>(sys_tcur - sys_tref); //elapsed time
 
-                timeStamp frame_timestamp = zed.getTimestamp(TIME_REFERENCE_IMAGE);
-			    zed.retrieveImage(zed_image_l, VIEW_LEFT_GRAY);
-			    zed.retrieveImage(zed_image_r, VIEW_RIGHT_GRAY);
+				// coarse system time (absolute, local)
+				time(&rawtime);
+				struct tm * now = localtime(&rawtime);
+    			char curtime[30];
+				strftime(curtime,30,"%Y-%m-%d_%H:%M:%S",now);
 
+                timeStamp frame_timestamp = zed.getTimestamp(TIME_REFERENCE_IMAGE);
+			   // zed.retrieveImage(zed_image_l, VIEW_LEFT_GRAY);
+			   // zed.retrieveImage(zed_image_r, VIEW_RIGHT_GRAY);
+
+				//retrieve IMU data
 				IMUData zed_imu;
 				zed.getIMUData(zed_imu, sl::TIME_REFERENCE::TIME_REFERENCE_IMAGE);
 				Orientation quat = zed_imu.getOrientation();
 
+                // Record the grabbed frame in the video file
                 zed.record();
                 //write auxilary data to file
-                data_file << i << "\t" <<  trel_sys.count() << "\t" 
+                data_file << i << "\t" << curtime << "\t" << trel_sys.count() << "\t" 
                              <<  frame_timestamp << "\t" << gps.get_time() << "\t"
                              << fixed <<setprecision(6) << gps.get_lat() << "\t"
                             << fixed <<setprecision(6) << gps.get_lon() << "\t"

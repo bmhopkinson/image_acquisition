@@ -1,3 +1,6 @@
+#ifndef GPSPOLLER_H_
+#define GPSPOLLER_H_
+
 #include "libgpsmm.h"
 #include <thread>
 #include <string>
@@ -35,4 +38,6 @@ class GPSPoller
     //type? get_time() const;
 
 };
+
+#endif  //include guard
 
