@@ -42,10 +42,11 @@ find_package(ZED 2 REQUIRED)
 find_package(CUDA ${ZED_CUDA_VERSION} EXACT REQUIRED)
 
 add_library(system SHARED
-src/system/GPIO.cpp
-src/system/GPSPoller.cpp
-src/system/LogUtils.cpp
-src/system/Helpers.cpp
+  src/system/GPIO.cpp
+  src/system/GPSPoller.cpp
+  src/system/LogUtils.cpp
+  src/system/PerfMonitor.cpp
+  src/system/Helpers.cpp
 )
 target_include_directories(system PUBLIC
   ${PROJECT_SOURCE_DIR}/include

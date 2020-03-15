@@ -1,5 +1,6 @@
 #include "system/GPIO.h"
 #include "system/GPSPoller.h"
+#include "system/PerfMonitor.h"
 #include "system/LogUtils.h"
 #include "system/Helpers.h"
 #include <sl/Camera.hpp>
@@ -62,10 +63,12 @@ int main(int argc, char **argv) {
    	// Create ZED stereo grayscale images
 	Mat zed_image_l(zed.getResolution(), MAT_TYPE_8U_C1);
 	Mat zed_image_r(zed.getResolution(), MAT_TYPE_8U_C1);
-  
-
+ 
     //create GPSPoller
     GPSPoller gps;
+
+	//create performance monitor
+	PerfMonitor pm(logdir);
 
     gpio_in.monitor_button();
     bool b_active = true;
