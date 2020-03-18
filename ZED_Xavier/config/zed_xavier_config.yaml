@@ -7,6 +7,6 @@ gpio.button_startstop:
 
 #zed info
 zed:
-    fps: 30
-    resolution: RESOLUTION_HD1080 
+    fps: 60
+    resolution: RESOLUTION_HD720
 
