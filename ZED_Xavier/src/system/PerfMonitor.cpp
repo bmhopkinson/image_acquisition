@@ -14,7 +14,7 @@
 #include <fcntl.h>
 
 char perf_interval[] = "1000"; 
-
+using namespace std;
 //PerfMonitor::PerfMonitor(std::string fname){
 PerfMonitor::PerfMonitor(char* logdir){
 	perfThread = std::thread(&PerfMonitor::logperf, this, logdir);
@@ -34,12 +34,12 @@ void PerfMonitor::logperf(char* logdir){
     char filestr[30];
 	strftime(filestr,30,"/tegrastats_%H-%M-%S.txt",now);
 
-	char pathstr[80];
+	char pathstr[200];
 	strcpy(pathstr, logdir);
 	strcat(pathstr, filestr);
-
+	
 	//start tegrastats
-	char syscallstr[80];
+	char syscallstr[200];
 	strcpy(syscallstr, "tegrastats --interval ");
 	strcat(syscallstr, perf_interval);
 	strcat(syscallstr, "  --logfile ");

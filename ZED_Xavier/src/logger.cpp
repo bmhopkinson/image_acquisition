@@ -27,13 +27,13 @@ int main(int argc, char **argv) {
 	struct tm * now = localtime(&rawtime);
 	
 	// Make log, year, and month+day directories as needed
-	char logdir[15];
-	strftime(logdir,15,"log/%Y/%m-%d",now);
+	char logdir[150];
+	strftime(logdir,150,"/home/nvidia/Documents/image_acquisition/ZED_Xavier/bin/log/%Y/%m-%d",now);
 	mkdir_recursive(logdir, 0x1FF);
 
 	//load configuration information
 	YAML::Node config_file;
-	config_file = YAML::LoadFile("../config/zed_xavier_config.yaml");
+	config_file = YAML::LoadFile("/home/nvidia/Documents/image_acquisition/ZED_Xavier/config/zed_xavier_config.yaml");
 	YAML::Node button_ss = config_file["gpio.button_startstop"];
 	unsigned int pin1 = button_ss["pin_id"].as<unsigned int>();
 	double DUR_THRESHOLD = button_ss["longthresh"].as<double>();
@@ -85,21 +85,27 @@ int main(int argc, char **argv) {
 				gpio_in.clear_activity();
 
 				// Enable ZED video recording
-				char svofile[50];
+				char  svofile[200] = "/home/nvidia/Documents/image_acquisition/ZED_Xavier/bin/log/";
+				char svofile_time[100];
 				time(&rawtime);
 				struct tm * start_time = localtime(&rawtime);
-				strftime(svofile,50,"./log/%Y/%m-%d/%F_%H-%M-%S_video.svo",start_time);
+				strftime(svofile_time,100,"%Y/%m-%d/%F_%H-%M-%S_video.svo",start_time);
+				strcat(svofile, svofile_time);
+				cout << "svo file: " << svofile << endl;
 				err = zed.enableRecording(svofile, SVO_COMPRESSION_MODE_AVCHD);
+				cout << "enabled svo recording" << endl;
 				if (err != SUCCESS) {
 					std::cout << toString(err) << std::endl;
 					exit(-1);
 				}
 
 				//open data file
-				char datafname[50];
-				strftime(datafname,50,"./log/%Y/%m-%d/%F_%H-%M-%S_data.txt",start_time);
+				char datafname[150];
+				strftime(datafname,150,"/home/nvidia/Documents/image_acquisition/ZED_Xavier/bin/log/%Y/%m-%d/%F_%H-%M-%S_data.txt",start_time);
 				data_file.open(datafname, std::ios::out);
-				data_file << "i\t" <<"sys_time_local\t"<< "sys_time_rel (s)\t" << "frame_timestamp (ns)\t" << "gps_time\t" << "lat\t" << "lon\t"<< "qx\t"<< "qy\t"<< "qz\t" << "qw\n";
+				cout << "enabled custom data recording" << endl;
+				data_file << "i\t" <<"sys_time_local\t"<< "sys_time_rel (s)\t" << "frame_timestamp (ns)\t" << "gps_time\t" << "lat\t" << "lon\t"<< "qx\t"<< "qy\t"<< "qz\t" << "qw\t" <<
+								"acc_x\t" << "acc_y\t" <<"acc_z\t" << "angv_x\t" << "angv_y\t" <<"angv_z\n";
 
 				b_record = true;
 				//  gpio_led.set_value(1);
@@ -135,7 +141,8 @@ int main(int argc, char **argv) {
 				IMUData zed_imu;
 				zed.getIMUData(zed_imu, sl::TIME_REFERENCE::TIME_REFERENCE_IMAGE);
 				Orientation quat = zed_imu.getOrientation();
-
+				sl::float3 imu_acc = zed_imu.linear_acceleration;
+				sl::float3 imu_ang = zed_imu.angular_velocity;
 				// Record the grabbed frame in the video file
 				zed.record();
 				//write auxilary data to file
@@ -143,7 +150,9 @@ int main(int argc, char **argv) {
 						<<  frame_timestamp << "\t" << gps.get_time() << "\t"
 						<< fixed <<setprecision(6) << gps.get_lat() << "\t"
 						<< fixed <<setprecision(6) << gps.get_lon() << "\t"
-						<< quat(0) << "\t" << quat(1) << "\t"<< quat(2) << "\t"<< quat(3) << std::endl;
+						<< quat(0) << "\t" << quat(1) << "\t"<< quat(2) << "\t"<< quat(3) <<"\t"
+						<< imu_acc[0]  << "\t" << imu_acc[1]  << "\t" << imu_acc[2]  << "\t" 
+						<< imu_ang[0]  << "\t" << imu_ang[1]  << "\t"<< imu_ang[2]  << std::endl;
 				i++;
 			}
 			if(gpio_in.get_activity()){

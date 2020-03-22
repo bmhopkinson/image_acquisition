@@ -1,0 +1,14 @@
+[Unit]
+Description=ZED_Xavier Logger
+Requires=gpsd.socket
+After=gpsd.service
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=nvidia
+ExecStart=/home/nvidia/Documents/image_acquisition/ZED_Xavier/bin/logger
+
+[Install]
+WantedBy=multi-user.target
