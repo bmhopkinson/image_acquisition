@@ -104,8 +104,9 @@ int main(int argc, char **argv) {
 				strftime(datafname,150,"/home/nvidia/Documents/image_acquisition/ZED_Xavier/bin/log/%Y/%m-%d/%F_%H-%M-%S_data.txt",start_time);
 				data_file.open(datafname, std::ios::out);
 				cout << "enabled custom data recording" << endl;
-				data_file << "i\t" <<"sys_time_local\t"<< "sys_time_rel (s)\t" << "frame_timestamp (ns)\t" << "gps_time\t" << "lat\t" << "lon\t"<< "qx\t"<< "qy\t"<< "qz\t" << "qw\t" <<
-								"acc_x\t" << "acc_y\t" <<"acc_z\t" << "angv_x\t" << "angv_y\t" <<"angv_z\n";
+				data_file << "i\t" <<"sys_time_local\t"<< "sys_time_rel (s)\t" << "frame_timestamp (ns)\t" 
+                              << "gps_time\t" << "lat\t" << "lat_err (m)\t"<< "lon\t" << "lon_err (m)\t" << "alt\t"<<"gps_mode\t" <<"gps_status\t" << "gps_nsats\t" 
+                               << "qx\t"<< "qy\t"<< "qz\t" << "qw\t" << "acc_x\t" << "acc_y\t" <<"acc_z\t" << "angv_x\t" << "angv_y\t" <<"angv_z\n";
 
 				b_record = true;
 				//  gpio_led.set_value(1);
@@ -145,11 +146,13 @@ int main(int argc, char **argv) {
 				sl::float3 imu_ang = zed_imu.angular_velocity;
 				// Record the grabbed frame in the video file
 				zed.record();
-				//write auxilary data to file
+				//write auxilary data to file - would be better to convert this to xml or something similar
 				data_file << i << "\t" << curtime << "\t" << trel_sys.count() << "\t" 
 						<<  frame_timestamp << "\t" << gps.get_time() << "\t"
-						<< fixed <<setprecision(6) << gps.get_lat() << "\t"
-						<< fixed <<setprecision(6) << gps.get_lon() << "\t"
+						<< fixed <<setprecision(6) << gps.get_lat() << "\t"  << gps.get_lat_err() << "\t"
+						<< fixed <<setprecision(6) << gps.get_lon() << "\t"  << gps.get_lon_err() << "\t"
+                        << fixed <<setprecision(6) << gps.get_alt() << "\t"
+                        << gps.get_mode() << "\t" <<gps.get_status() << "\t" << gps.get_nsats() << "\t"
 						<< quat(0) << "\t" << quat(1) << "\t"<< quat(2) << "\t"<< quat(3) <<"\t"
 						<< imu_acc[0]  << "\t" << imu_acc[1]  << "\t" << imu_acc[2]  << "\t" 
 						<< imu_ang[0]  << "\t" << imu_ang[1]  << "\t"<< imu_ang[2]  << std::endl;

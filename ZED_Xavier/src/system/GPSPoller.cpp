@@ -52,10 +52,22 @@ void GPSPoller::update_data(struct gps_data_t* gpsdata){
         lat =  gpsdata->fix.latitude;
         lon = gpsdata->fix.longitude;
     }
+   if(gpsdata->set & HERR_SET){
+        lat_err = gpsdata->fix.epy;  //error meters
+        lon_err = gpsdata->fix.epx;  //error meters
+    }
+
   
     if(gpsdata->set & MODE_SET){
        // cout << "mode: " << gpsdata->fix.mode << "\t" ;
         mode =  gpsdata->fix.mode;
+        status = gpsdata->status;  // 0 = no, 1 = normal, 2 = dgps
+        if(mode == 3){
+            alt = gpsdata->fix.altitude; // valid if mode == 3
+         }
+         else {
+            alt = -999; //no altitude data
+         }
     } 
     sats_used = gpsdata->satellites_used;
 }
