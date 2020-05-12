@@ -44,6 +44,8 @@ find_package(CUDA ${ZED_CUDA_VERSION} EXACT REQUIRED)
 add_library(system SHARED
   src/system/GPIO.cpp
   src/system/GPSPoller.cpp
+  src/system/Arduino.cpp
+  src/system/Seven_seg.cpp
   src/system/LogUtils.cpp
   src/system/PerfMonitor.cpp
   src/system/Helpers.cpp
