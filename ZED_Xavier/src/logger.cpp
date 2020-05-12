@@ -1,5 +1,7 @@
 #include "system/GPIO.h"
 #include "system/GPSPoller.h"
+#include "system/Arduino.h"
+#include "system/Seven_seg.h"
 #include "system/PerfMonitor.h"
 #include "system/LogUtils.h"
 #include "system/Helpers.h"
@@ -13,10 +15,9 @@
 #include <time.h>
 #include <yaml-cpp/yaml.h>
 
-//to do - create performance logger that records cpu/gpu usage, cpu temp, fan speed, etc over time
-// - run on battery and take around - perhaps set camera in front of car, hook gps to roof
-
 //double DUR_THRESHOLD = 2000; //threshold for long button press, milliseconds
+
+// really need to simplify this - convert a lot of it to a "logger" class.  just initalize all the components (gps, zed, display, etc) here, pass them to a logger object and do basic record start/stop logic in main program
 
 using namespace sl;
 using namespace std;
@@ -46,6 +47,16 @@ int main(int argc, char **argv) {
 	std::cout << "export in pin? " << result << "\n";
 	std::cout << std::endl;
 
+    //setup 7seg display
+   Arduino ard("/dev/ttyACM0");
+   ard.open_uart(3);  //open communication channel - speed 3 (115200 baud)
+   Seven_seg disp(&ard);
+   Seven_seg_data drec, dgps;
+   drec.msg ="rec0";
+   drec.duration = 750;
+   disp.add_periodic("rec", drec);
+   disp.start_periodic();  //begin rotating message display
+
 	// Create a ZED camera object
 	Camera zed;
 	// Set initial parameters
@@ -68,6 +79,10 @@ int main(int argc, char **argv) {
 	//create GPSPoller
 	GPSPoller gps;
 
+   dgps.msg = "gps" + std::to_string(gps.get_mode());  //display gps status
+   dgps.duration = 750;
+   disp.add_periodic("gps", dgps);
+
 	//create performance monitor
 	PerfMonitor pm(logdir);
 
@@ -79,6 +94,10 @@ int main(int argc, char **argv) {
    
 	std::cout << "entering active loop" << std::endl;
 	while(b_active){
+            
+        dgps.msg = "gps" + std::to_string(gps.get_mode());  //display gps status
+        disp.update_periodic("gps", dgps);
+       
 		if(gpio_in.get_activity()){ // button pressed
 			std::cout << "activity detected in active loop" <<std::endl;
 			if(gpio_in.get_duration() < DUR_THRESHOLD){ //start recording - short button press
@@ -109,6 +128,10 @@ int main(int argc, char **argv) {
                                << "qx\t"<< "qy\t"<< "qz\t" << "qw\t" << "acc_x\t" << "acc_y\t" <<"acc_z\t" << "angv_x\t" << "angv_y\t" <<"angv_z\n";
 
 				b_record = true;
+
+                //update 7seg display
+                drec.msg = "rec1";
+                disp.update_periodic("rec", drec);
 				//  gpio_led.set_value(1);
 			} else if(gpio_in.get_duration() > DUR_THRESHOLD){    // terminate program - long button press
 				gpio_in.clear_activity();
@@ -146,6 +169,13 @@ int main(int argc, char **argv) {
 				sl::float3 imu_ang = zed_imu.angular_velocity;
 				// Record the grabbed frame in the video file
 				zed.record();
+
+                //periodically update display
+                if( i % 25 == 0){
+                    dgps.msg = "gps" + std::to_string(gps.get_mode());
+                    disp.update_periodic("gps", dgps);
+                }
+
 				//write auxilary data to file - would be better to convert this to xml or something similar
 				data_file << i << "\t" << curtime << "\t" << trel_sys.count() << "\t" 
 						<<  frame_timestamp << "\t" << gps.get_time() << "\t"
@@ -160,11 +190,16 @@ int main(int argc, char **argv) {
 			}
 			if(gpio_in.get_activity()){
 				b_record = false;
+
 				//     gpio_led.set_value(0);
 				zed.disableRecording();
 				std::cout << "Video has been saved ..." << std::endl;
 				data_file.close();
-				if(gpio_in.get_duration() > DUR_THRESHOLD){
+                //update 7seg display
+                drec.msg = "rec0";
+                disp.update_periodic("rec", drec);
+
+				if(gpio_in.get_duration() > DUR_THRESHOLD){  //check whether to exit program
 					b_active = false;   
 				}
 				gpio_in.clear_activity();
