@@ -10,13 +10,9 @@
 Arduino::Arduino()    //autodetect port
 {
 } 
-
-Arduino::Arduino(std::string port_str) // user defined port
-{
-   port = port_str;
-}   
         
-int Arduino::open_uart(int speed){
+int Arduino::open_uart(std::string port_str, int speed){
+    port = port_str;
     uart_speed = speed;
 
     if((client = open(port.c_str(), O_RDWR | O_NOCTTY | O_SYNC)) <0){

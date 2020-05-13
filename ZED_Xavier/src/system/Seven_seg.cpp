@@ -3,8 +3,7 @@
 #include <future>
 #include <iostream>
 
-Seven_seg::Seven_seg(Arduino* conn){
-    connection = conn;
+Seven_seg::Seven_seg(){
 }
 
 Seven_seg::~Seven_seg(){
@@ -12,6 +11,10 @@ Seven_seg::~Seven_seg(){
        run_periodic = false;
        periodicThread.join();
    }
+}
+
+void Seven_seg::set_connection(Arduino* conn){
+    connection = conn;
 }
 
 void Seven_seg::add_periodic(std::string item, Seven_seg_data sd){

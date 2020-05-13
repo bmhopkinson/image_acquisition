@@ -3,9 +3,13 @@
 #include <iostream>
 #include <iomanip>
 
-Logger::Logger(sl::Camera &zed_,  GPSPoller &gps_,  Seven_seg &disp_, YAML::Node config_file_):zed(zed_), gps(gps_), disp(disp_), config_file(config_file_)
+Logger::Logger(sl::Camera &zed_, YAML::Node config_file_):zed(zed_), config_file(config_file_)
 {
     //start display
+   YAML::Node ard_config = config_file["arduino"];
+
+   ard.open_uart(ard_config["port"].as<std::string>(), ard_config["speed"].as<int>());
+   disp.set_connection(&ard);
    Seven_seg_data drec, dgps;
    drec.msg ="rec0";
    drec.duration = 750;

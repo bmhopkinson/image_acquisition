@@ -11,10 +11,9 @@
 #include "system/Arduino.h"
 #include "system/Seven_seg.h"
 
-
 class Logger{
     public:
-        Logger(sl::Camera &zed_,  GPSPoller &gps_,  Seven_seg &disp_, YAML::Node config_file_);
+        Logger(sl::Camera &zed_, YAML::Node config_file_);
         void initialize_recording(struct tm * start_time);
         void record_start(std::chrono::high_resolution_clock::time_point  tref_);
         void record_stop();
@@ -22,8 +21,9 @@ class Logger{
     private:
         //major components
         sl::Camera& zed;
-        GPSPoller& gps;
-        Seven_seg& disp;
+        GPSPoller gps;
+        Arduino ard;
+        Seven_seg disp;
         YAML::Node config_file;
 
         //flags

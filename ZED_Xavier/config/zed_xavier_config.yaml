@@ -10,3 +10,8 @@ zed:
     fps: 60
     resolution: RESOLUTION_HD720
 
+#arduino info
+arduino:
+    port: /dev/ttyACM0
+    speed: 3
+

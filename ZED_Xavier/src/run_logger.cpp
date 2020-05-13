@@ -1,17 +1,11 @@
 #include "system/GPIO.h"
-#include "system/GPSPoller.h"
-#include "system/Arduino.h"
-#include "system/Seven_seg.h"
 #include "system/PerfMonitor.h"
 #include "system/LogUtils.h"
 #include "system/Helpers.h"
 #include "Logger.h"
 #include <sl/Camera.hpp>
 #include <iostream>
-#include <iomanip>
-#include <fstream>
 #include<chrono>
-#include<thread>
 #include<stdlib.h>
 #include <time.h>
 #include <yaml-cpp/yaml.h>
@@ -46,11 +40,6 @@ int main(int argc, char **argv) {
 	std::cout << "export in pin? " << result << "\n";
 	std::cout << std::endl;
 
-    //setup 7seg display
-   Arduino ard("/dev/ttyACM0");
-   ard.open_uart(3);  //open communication channel - speed 3 (115200 baud)
-   Seven_seg disp(&ard);
-
 	// Create a ZED camera object
 	Camera zed;
 	// Set initial parameters
@@ -66,8 +55,6 @@ int main(int argc, char **argv) {
 		exit(-1);
 	}
 
-	//create GPSPoller
-	GPSPoller gps;
 
 	//create performance monitor
 	PerfMonitor pm(logdir);
@@ -77,7 +64,7 @@ int main(int argc, char **argv) {
     bool b_record = false;
     //create Logger
 
-   Logger sys_xav(zed, gps, disp, config_file); 
+   Logger sys_xav(zed, config_file); 
    
 	std::cout << "entering active loop" << std::endl;
 	while(b_active){
