@@ -1,10 +1,25 @@
 #include "Logger.h"
 #include "system/Seven_seg.h"
+#include "system/Helpers.h"
 #include <iostream>
 #include <iomanip>
 
-Logger::Logger(sl::Camera &zed_, YAML::Node config_file_):zed(zed_), config_file(config_file_)
+Logger::Logger(YAML::Node config_file_):config_file(config_file_)
 {
+
+   //initialize zed
+   	YAML::Node zed_config = config_file["zed"];
+	sl::InitParameters init_params;
+	init_params.camera_resolution = str_to_resolution(zed_config["resolution"].as<std::string>());
+	init_params.camera_fps = zed_config["fps"].as<int>();
+	init_params.coordinate_units = sl::UNIT_METER; // Set units in meters
+	// Open the camera
+	sl::ERROR_CODE err = zed.open(init_params);
+	if (err != sl::SUCCESS) {
+		std::cout << sl::toString(err) << std::endl;
+		exit(-1);
+	}
+
     //start display
    YAML::Node ard_config = config_file["arduino"];
 
@@ -21,6 +36,10 @@ Logger::Logger(sl::Camera &zed_, YAML::Node config_file_):zed(zed_), config_file
     
 }
 
+Logger::~Logger(){
+	zed.close();  
+}
+
 void Logger::initialize_recording(struct tm * start_time)
 {
 
@@ -32,7 +51,8 @@ void Logger::initialize_recording(struct tm * start_time)
 	std::cout << "svo file: " << svofile << std::endl;
 
     sl::ERROR_CODE err;
-	err = zed.enableRecording(svofile, sl::SVO_COMPRESSION_MODE_AVCHD);
+    YAML::Node zed_config = config_file["zed"];
+	err = zed.enableRecording(svofile, str_to_compression(zed_config["compression"].as<std::string>()));
 	std::cout << "enabled svo recording" << std::endl;
 	if (err != sl::SUCCESS) {
 	    std::cout << sl::toString(err) << std::endl;

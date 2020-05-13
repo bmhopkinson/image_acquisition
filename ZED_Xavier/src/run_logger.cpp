@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
 
 	//load configuration information
 	YAML::Node config_file;
-	config_file = YAML::LoadFile("/home/nvidia/Documents/image_acquisition/ZED_Xavier/config/zed_xavier_config.yaml");
+	config_file = YAML::LoadFile("/home/nvidia/Documents/image_acquisition/ZED_Xavier/config/zed_xavier_config_1.yaml");
 	YAML::Node button_ss = config_file["gpio.button_startstop"];
 	unsigned int pin1 = button_ss["pin_id"].as<unsigned int>();
 	double DUR_THRESHOLD = button_ss["longthresh"].as<double>();
@@ -40,31 +40,15 @@ int main(int argc, char **argv) {
 	std::cout << "export in pin? " << result << "\n";
 	std::cout << std::endl;
 
-	// Create a ZED camera object
-	Camera zed;
-	// Set initial parameters
-	YAML::Node zed_config = config_file["zed"];
-	InitParameters init_params;
-	init_params.camera_resolution = str_to_resolution(zed_config["resolution"].as<string>());
-	init_params.camera_fps = zed_config["fps"].as<int>();
-	init_params.coordinate_units = UNIT_METER; // Set units in meters
-	// Open the camera
-	ERROR_CODE err = zed.open(init_params);
-	if (err != SUCCESS) {
-		std::cout << toString(err) << std::endl;
-		exit(-1);
-	}
-
-
 	//create performance monitor
 	PerfMonitor pm(logdir);
 
 	gpio_in.monitor_button();
 	bool b_active = true;
     bool b_record = false;
-    //create Logger
 
-   Logger sys_xav(zed, config_file); 
+    //create Logger
+   Logger sys_xav(config_file); 
    
 	std::cout << "entering active loop" << std::endl;
 	while(b_active){
@@ -73,7 +57,8 @@ int main(int argc, char **argv) {
 			std::cout << "activity detected in active loop" <<std::endl;
 			if(gpio_in.get_duration() < DUR_THRESHOLD){ //start recording - short button press
 			    gpio_in.clear_activity();
-				// Enable ZED video recording
+
+				// Enable  recording
 				time(&rawtime);
 				struct tm * start_time = localtime(&rawtime);
                 sys_xav.initialize_recording(start_time);
@@ -101,8 +86,6 @@ int main(int argc, char **argv) {
         
 	} //active loop
 
-
-	zed.close();  //maybe better to put this in Logger destructor
 	return 0;
 }
 

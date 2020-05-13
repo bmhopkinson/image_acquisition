@@ -13,14 +13,15 @@
 
 class Logger{
     public:
-        Logger(sl::Camera &zed_, YAML::Node config_file_);
+        Logger(YAML::Node config_file_);
+        ~Logger();
         void initialize_recording(struct tm * start_time);
         void record_start(std::chrono::high_resolution_clock::time_point  tref_);
         void record_stop();
         
     private:
         //major components
-        sl::Camera& zed;
+        sl::Camera zed;
         GPSPoller gps;
         Arduino ard;
         Seven_seg disp;

@@ -9,6 +9,7 @@ gpio.button_startstop:
 zed:
     fps: 60
     resolution: RESOLUTION_HD720
+    compression: COMPRESSION_HEVC
 
 #arduino info
 arduino:
