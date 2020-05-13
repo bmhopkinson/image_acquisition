@@ -62,7 +62,10 @@ target_link_libraries(system
   yaml-cpp
 )
 
-add_executable(logger src/logger.cpp)
+add_executable(logger 
+    src/run_logger.cpp
+    src/Logger.cpp
+)
 target_include_directories(logger PUBLIC
  ${PROJECT_SOURCE_DIR}/include
  ${ZED_INCLUDE_DIRS}
