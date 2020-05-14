@@ -1,0 +1,24 @@
+%YAML:1.0
+
+# gpio info
+gpio.button_startstop: 
+    pin_id: 249
+    longthresh: 2000
+
+#zed info
+zed:
+    fps: 60
+    resolution: RESOLUTION_HD720
+    compression: COMPRESSION_HEVC
+
+#arduino info
+arduino:
+    port: /dev/ttyACM0
+    speed: 3
+
+#config_files
+config_files:
+    - /home/nvidia/Documents/image_acquisition/ZED_Xavier/config/zed_xavier_config_base.yaml
+    - /home/nvidia/Documents/image_acquisition/ZED_Xavier/config/zed_xavier_config_1.yaml
+    - /home/nvidia/Documents/image_acquisition/ZED_Xavier/config/zed_xavier_config_2.yaml
+

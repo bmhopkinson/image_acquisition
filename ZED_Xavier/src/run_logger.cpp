@@ -2,6 +2,8 @@
 #include "system/PerfMonitor.h"
 #include "system/LogUtils.h"
 #include "system/Helpers.h"
+#include "system/Arduino.h"
+#include "system/Seven_seg.h"
 #include "Logger.h"
 #include <sl/Camera.hpp>
 #include <iostream>
@@ -10,9 +12,8 @@
 #include <time.h>
 #include <yaml-cpp/yaml.h>
 
-//double DUR_THRESHOLD = 2000; //threshold for long button press, milliseconds
+std::string config_select(YAML::Node config_base, GPIO &gpio_in, std::string &copt);
 
-using namespace sl;
 using namespace std;
 int main(int argc, char **argv) {
 	// Record timestamp
@@ -26,9 +27,10 @@ int main(int argc, char **argv) {
 	mkdir_recursive(logdir, 0x1FF);
 
 	//load configuration information
-	YAML::Node config_file;
-	config_file = YAML::LoadFile("/home/nvidia/Documents/image_acquisition/ZED_Xavier/config/zed_xavier_config_1.yaml");
-	YAML::Node button_ss = config_file["gpio.button_startstop"];
+	YAML::Node config_base;
+     std::string config_base_path = "/home/nvidia/Documents/image_acquisition/ZED_Xavier/config/zed_xavier_config_base.yaml";
+	config_base = YAML::LoadFile(config_base_path);
+	YAML::Node button_ss = config_base["gpio.button_startstop"];
 	unsigned int pin1 = button_ss["pin_id"].as<unsigned int>();
 	double DUR_THRESHOLD = button_ss["longthresh"].as<double>();
 
@@ -44,11 +46,19 @@ int main(int argc, char **argv) {
 	PerfMonitor pm(logdir);
 
 	gpio_in.monitor_button();
+
+    //select configuration file
+
+    std::string copt;
+    std:string config_logger_file= config_select(config_base, gpio_in, copt);
+    YAML::Node config_logger;
+    config_logger = YAML::LoadFile(config_logger_file);
+
 	bool b_active = true;
     bool b_record = false;
 
     //create Logger
-   Logger sys_xav(config_file); 
+   Logger sys_xav(config_logger, copt); 
    
 	std::cout << "entering active loop" << std::endl;
 	while(b_active){
@@ -87,5 +97,43 @@ int main(int argc, char **argv) {
 	} //active loop
 
 	return 0;
+}
+
+std::string config_select(YAML::Node config_base,  GPIO &gpio_in, std::string &copt)
+{
+    bool b_config_sel = false;
+    std::string fpath; // to return;
+  
+    Arduino ard;
+    YAML::Node ard_config = config_base["arduino"];
+    ard.open_uart(ard_config["port"].as<std::string>(), ard_config["speed"].as<int>());
+    Seven_seg disp;
+    disp.set_connection(&ard);
+
+   YAML::Node opts = config_base["config_files"];
+    while(!b_config_sel){
+        int i = 0;
+        for (YAML::iterator it = opts.begin(); it != opts.end(); ++it) {
+            std::string dstr; 
+            if(i == 0){ dstr = "base";}
+            else{
+                dstr = "opt" + std::to_string(i);
+            }
+            disp.display_now(dstr);
+            std::this_thread::sleep_for(std::chrono::seconds(2));
+            if(gpio_in.get_activity()){
+                YAML::Node opt = *it;
+                fpath = opt.as<std::string>();
+                copt = dstr;
+
+                b_config_sel = true;
+                gpio_in.clear_activity();
+                break;
+            }
+            i++;
+        } //end for loop
+    }  //end while
+ 
+    return fpath;
 }
 

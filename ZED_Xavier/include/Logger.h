@@ -13,7 +13,7 @@
 
 class Logger{
     public:
-        Logger(YAML::Node config_file_);
+        Logger(YAML::Node config_file_, std::string copt);
         ~Logger();
         void initialize_recording(struct tm * start_time);
         void record_start(std::chrono::high_resolution_clock::time_point  tref_);
@@ -26,6 +26,7 @@ class Logger{
         Arduino ard;
         Seven_seg disp;
         YAML::Node config_file;
+        std::string copt_str; 
 
         //flags
         bool b_record = false;

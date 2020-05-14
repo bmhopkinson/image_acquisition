@@ -17,6 +17,11 @@ void Seven_seg::set_connection(Arduino* conn){
     connection = conn;
 }
 
+void Seven_seg::display_now(std::string str){
+     std::string ard_msg = "#7seg," + str + "\n"; 
+     connection->send(ard_msg);
+}
+
 void Seven_seg::add_periodic(std::string item, Seven_seg_data sd){
    std::async(std::launch::async, &Seven_seg::_add_periodic, this, item, sd);  //pdata_struct_lock is released infrequently so modify asynchronously
 }

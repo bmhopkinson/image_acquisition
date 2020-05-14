@@ -4,9 +4,9 @@
 #include <iostream>
 #include <iomanip>
 
-Logger::Logger(YAML::Node config_file_):config_file(config_file_)
+Logger::Logger(YAML::Node config_file_, std::string copt):config_file(config_file_)
 {
-
+    copt_str = copt;
    //initialize zed
    	YAML::Node zed_config = config_file["zed"];
 	sl::InitParameters init_params;
@@ -22,16 +22,19 @@ Logger::Logger(YAML::Node config_file_):config_file(config_file_)
 
     //start display
    YAML::Node ard_config = config_file["arduino"];
-
+   
    ard.open_uart(ard_config["port"].as<std::string>(), ard_config["speed"].as<int>());
    disp.set_connection(&ard);
-   Seven_seg_data drec, dgps;
+   Seven_seg_data drec, dgps, dopt;
    drec.msg ="rec0";
    drec.duration = 750;
    dgps.msg = "gps" + std::to_string(gps.get_mode());  //display gps status
    dgps.duration = 750;
+   dopt.msg = copt;
+   dopt.duration = 750;
    disp.add_periodic("rec", drec);
    disp.add_periodic("gps", dgps);
+   disp.add_periodic("opt", dopt);
    disp.start_periodic();  //begin rotating message display
     
 }

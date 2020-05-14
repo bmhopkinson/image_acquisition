@@ -3,7 +3,7 @@
 #include <map>
 #include <thread>
 #include <mutex>
-#include "Arduino.h"
+#include "system/Arduino.h"
 
 struct Seven_seg_data{
     int duration; //milliseconds
@@ -14,8 +14,7 @@ class Seven_seg {
     public: 
         Seven_seg();  //constructor -> pointer to device (currently only arduino implemented);
         ~Seven_seg(); //destructor joins periodicThread if it's still running
-        //should probably have a destructor to stop periodic display and join thread if still running;
-       // void display_now(std::string str); //not yet implemented
+        void display_now(std::string str); //only use independently of periodic function
         void set_connection(Arduino* conn);
         void add_periodic(std::string item, Seven_seg_data sd);
         int update_periodic(std::string item, Seven_seg_data sd);
