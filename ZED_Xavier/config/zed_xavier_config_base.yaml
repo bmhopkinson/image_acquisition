@@ -21,4 +21,4 @@ config_files:
     - /home/nvidia/Documents/image_acquisition/ZED_Xavier/config/zed_xavier_config_base.yaml
     - /home/nvidia/Documents/image_acquisition/ZED_Xavier/config/zed_xavier_config_1.yaml
     - /home/nvidia/Documents/image_acquisition/ZED_Xavier/config/zed_xavier_config_2.yaml
-
+    - /home/nvidia/Documents/image_acquisition/ZED_Xavier/config/zed_xavier_config_3.yaml

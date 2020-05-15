@@ -57,6 +57,7 @@ int Arduino::open_uart(std::string port_str, int speed){
     tcflush(client, TCIFLUSH );
     if ( tcsetattr ( client, TCSANOW, &options) != 0) {
        std::cout << "Error " << errno << " from tcsetattr" << std::endl;
+       return -1;
     }
      std::this_thread::sleep_for(std::chrono::seconds(1)); //wait for arduino to reboot - would be better to send a message from arduino and wait for it here, but haven't implemented a read function yet
 /* alternate formulation i found 
@@ -81,7 +82,7 @@ int Arduino::open_uart(std::string port_str, int speed){
    }
 */
    
-   return 1; 
+   return 0; 
 
 }
 

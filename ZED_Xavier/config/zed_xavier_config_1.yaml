@@ -8,7 +8,7 @@ gpio.button_startstop:
 #zed info
 zed:
     fps: 60
-    resolution: RESOLUTION_VGA
+    resolution: RESOLUTION_HD720
     compression: COMPRESSION_AVCHD
 
 #arduino info

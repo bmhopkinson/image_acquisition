@@ -12,7 +12,9 @@
 #include <time.h>
 #include <yaml-cpp/yaml.h>
 
-std::string config_select(YAML::Node config_base, GPIO &gpio_in, std::string &copt);
+//to do  -check if arduino opens - if not exit (so service will restart),  same thing in Logger - check if zed opens if not exit
+
+int config_select(YAML::Node config_base, GPIO &gpio_in, std::string &fpath, std::string &copt);
 
 using namespace std;
 int main(int argc, char **argv) {
@@ -50,7 +52,10 @@ int main(int argc, char **argv) {
     //select configuration file
 
     std::string copt;
-    std:string config_logger_file= config_select(config_base, gpio_in, copt);
+    std:string config_logger_file;
+    if(config_select(config_base, gpio_in, config_logger_file, copt) != 0){
+       return -1;
+    }
     YAML::Node config_logger;
     config_logger = YAML::LoadFile(config_logger_file);
 
@@ -99,14 +104,15 @@ int main(int argc, char **argv) {
 	return 0;
 }
 
-std::string config_select(YAML::Node config_base,  GPIO &gpio_in, std::string &copt)
+int config_select(YAML::Node config_base,  GPIO &gpio_in, std::string &fpath, std::string &copt)
 {
     bool b_config_sel = false;
-    std::string fpath; // to return;
   
     Arduino ard;
     YAML::Node ard_config = config_base["arduino"];
-    ard.open_uart(ard_config["port"].as<std::string>(), ard_config["speed"].as<int>());
+    if(ard.open_uart(ard_config["port"].as<std::string>(), ard_config["speed"].as<int>()) != 0){
+        return -1;
+    }
     Seven_seg disp;
     disp.set_connection(&ard);
 
@@ -134,6 +140,6 @@ std::string config_select(YAML::Node config_base,  GPIO &gpio_in, std::string &c
         } //end for loop
     }  //end while
  
-    return fpath;
+    return 0;
 }
 
