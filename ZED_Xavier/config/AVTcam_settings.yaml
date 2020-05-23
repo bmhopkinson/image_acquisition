@@ -1,0 +1,27 @@
+%YAML:1.0
+
+# format feature settings
+Acquisition: 
+    AcquisitionFrameRateAbs: 1.0
+
+Balance: 
+    BalanceWhiteAuto: Continuous
+    BalanceWhiteAutoRate: 70
+
+Exposure: 
+    ExposureAuto: Continuous
+    ExposureAutoAlg: Mean  #Mean or FitRange - a histogram based method
+    ExposureAutoMax: 30000 #us 
+    ExposureAutoRate: 100 
+    ExposureAutoTarget: 50 #target average pixel intensity (0 - 100)
+
+Gain: 
+    GainAuto: Continuous
+    GainAutoRate: 100
+    GainAutoTarget: 50 #seems similar to ExposureAutoTarget
+
+Trigger:   #to set fps need TriggerMode: off, TriggerSelector: FrameStart
+     TriggerMode: Off
+     TriggerSelector: FrameStart
+     TriggerSource: FixedRate
+
